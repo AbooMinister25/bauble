@@ -1,6 +1,6 @@
 import pytest
 
-from bauble.lexer import Lexer
+from bauble.bauble_lexer import Lexer
 from bauble.tokens import TokenKind
 
 

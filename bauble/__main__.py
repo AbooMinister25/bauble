@@ -1,6 +1,6 @@
 import sys
 
-from bauble.lexer import Lexer
+from bauble.bauble_lexer import Lexer
 
 HELP_MESSAGE = """Usage: bauble [options]
 """

@@ -21,7 +21,7 @@ from bauble.bauble_ast import (
     UnaryOp,
     While,
 )
-from bauble.lexer import Lexer
+from bauble.bauble_lexer import Lexer
 from bauble.tokens import Position, Token, TokenKind
 
 
