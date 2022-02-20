@@ -103,6 +103,7 @@ class Parser:
             TokenKind.OPEN_PAREN: self.parse_grouping,
             TokenKind.MINUS: self.parse_unary,
             TokenKind.BANG: self.parse_unary,
+            TokenKind.PLUS: self.parse_binary,
         }
 
     def advance(self) -> Token:
@@ -176,7 +177,7 @@ class Parser:
 
         while precedence <= get_precedence(self.peek().kind).infix:
             rule = self.rules_map[self.peek().kind]
-            lhs = rule()
+            lhs = rule(lhs)
 
     def parse_literal(self) -> Expr:
         """Parses a literal value"""
@@ -242,3 +243,13 @@ class Parser:
         expr = self.parse_expression(precedence.prefix)
 
         return UnaryOp(op.value, expr, op.position)
+
+    def parse_binary(self, lhs: Expr) -> Expr:
+        """Parse a binary operation"""
+
+        op = self.advance()
+        precedence = get_precedence(op.kind).infix + 1
+
+        rhs = self.parse_expression(precedence)
+
+        return BinOp(op.value, lhs, rhs, lhs.position)
