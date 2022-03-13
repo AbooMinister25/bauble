@@ -52,7 +52,7 @@ class Lexer:
 
         # Stores the next token in the token stream ahead of time. The
         # lexer stays one token ahead of the parser.
-        self.next: Optional[Token] = None
+        self.next = self.lex_token()
 
     def advance(self) -> Optional[str]:
         """Advances a single position forward in the lexer and returns the next char
@@ -89,8 +89,7 @@ class Lexer:
         if self.position >= len(self.source):
             return None
 
-        peeked_char = self.source[self.position]
-        return peeked_char
+        return self.source[self.position]
 
     def consume(self, expected: str) -> bool:
         """Advances the lexer if the peeked character is equal to the expected one
@@ -101,17 +100,14 @@ class Lexer:
 
         if self.peek() == expected:
             self.advance()
-            return True  # Can't shorted to a ternary, since the lexer needs to advance
+            return True  # Can't shorten to a ternary, since the lexer needs to advance
 
         return False
 
     def at_end(self) -> bool:
         """Returns whether the lexer is at the end of the source string or not"""
 
-        if self.next is None:
-            return self.peek() is None
-
-        return self.next.kind == TokenKind.EOF
+        return self.peek() is None
 
     def create_token(self, kind: TokenKind, value: Optional[str] = None) -> Token:
         """Helper function that creates a Token using the data given"""
@@ -268,11 +264,8 @@ class Lexer:
     def next_token(self) -> Token:
         """wrapper around lex_token that returns the current token and stores the next one"""
 
-        if self.next is None:
-            current = self.lex_token()
-            self.next = self.lex_token()
-        else:
-            current = self.next
-            self.next = self.lex_token()
+        # print(self.next.kind)
+        current = self.next
+        self.next = self.lex_token()
 
         return current

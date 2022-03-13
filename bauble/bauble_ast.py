@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Optional
 
 from bauble.tokens import Position
-from bauble.types import IOperator, LiteralKind, Operator
+from bauble.bauble_types import IOperator, LiteralKind, Operator
 
 
 class Expr:
@@ -32,7 +32,7 @@ class Literal(Expr):
         return f"Literal[{self.value}]"
 
     def __str__(self):
-        return self.value
+        return str(self.value)
 
 
 class BinOp(Expr):
@@ -111,7 +111,7 @@ class FunctionCall(Expr):
         return f"FunctionCall[name: {self.name} args: {self.args}]"
 
     def __str__(self):
-        return f"{self.name}({', '.join(self.args)})"
+        return f"{self.name}({', '.join([str(arg) for arg in self.args])})"
 
 
 class Assignment(Expr):
@@ -244,9 +244,7 @@ class FunctionDef(Statement):
         self.body = body
 
     def __repr__(self):
-        return (
-            f"FunctionDef[name: {self.namee} params: {self.params} body: {self.body}]"
-        )
+        return f"FunctionDef[name: {self.name} params: {self.params} body: {self.body}]"
 
     def __str__(self):
         return f"fn {self.name}({', '.join(self.params)}) {self.body}"
@@ -261,4 +259,4 @@ class ExpressionStmt(Statement):
         self.expr = expr
 
     def __str__(self):
-        return self.expr
+        return str(self.expr)

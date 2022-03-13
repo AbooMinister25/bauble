@@ -19,7 +19,7 @@ def test_literals(data):
     lexer = Lexer(data[0])
     tokens = []
 
-    while not lexer.at_end():
+    while lexer.next.kind != TokenKind.EOF:
         tokens.append(lexer.next_token())
 
     assert [token.kind for token in tokens] == data[1] and "".join(
@@ -45,7 +45,7 @@ def test_punctuation(data):
     lexer = Lexer(data[0])
     tokens = []
 
-    while not lexer.at_end():
+    while lexer.next.kind != TokenKind.EOF:
         tokens.append(lexer.next_token().kind)
 
     assert tokens == data[1]
@@ -72,7 +72,7 @@ def test_operators(data):
     lexer = Lexer(data[0])
     tokens = []
 
-    while not lexer.at_end():
+    while lexer.next.kind != TokenKind.EOF:
         tokens.append(lexer.next_token().kind)
 
     assert tokens == data[1]
@@ -99,7 +99,7 @@ def test_keywords(data):
     lexer = Lexer(data[0])
     tokens = []
 
-    while not lexer.at_end():
+    while lexer.next.kind != TokenKind.EOF:
         tokens.append(lexer.next_token())
 
     assert [token.kind for token in tokens] == data[1] and "".join(

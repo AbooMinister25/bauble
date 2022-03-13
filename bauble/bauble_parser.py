@@ -1,6 +1,6 @@
 import sys
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Callable
 
 from bauble.bauble_ast import (
     Assignment,
@@ -31,6 +31,14 @@ class Precedence:
 
     prefix: Optional[int]
     infix: Optional[int]
+
+
+@dataclass
+class Rule:
+    """Represents a parse rule with a prefix and infix handler"""
+
+    prefix: Optional[Optional[Callable[[], Expr]]]
+    infix: Optional[Optional[Callable[[Expr], Expr]]]
 
 
 PRECEDENCE_MAP = {
@@ -93,17 +101,17 @@ class Parser:
         # A dictionary of rules that map different token kinds to a
         # corresponding function for them to be parsed with.
         self.rules_map = {
-            TokenKind.INTEGER: self.parse_literal,
-            TokenKind.FLOAT: self.parse_literal,
-            TokenKind.STRING: self.parse_literal,
-            TokenKind.FALSE: self.parse_literal,
-            TokenKind.TRUE: self.parse_literal,
-            TokenKind.NONE: self.parse_literal,
-            TokenKind.IDENT: self.parse_ident,
-            TokenKind.OPEN_PAREN: self.parse_grouping,
-            TokenKind.MINUS: self.parse_unary,
-            TokenKind.BANG: self.parse_unary,
-            TokenKind.PLUS: self.parse_binary,
+            TokenKind.INTEGER: Rule(self.parse_literal, None),
+            TokenKind.FLOAT: Rule(self.parse_literal, None),
+            TokenKind.STRING: Rule(self.parse_literal, None),
+            TokenKind.FALSE: Rule(self.parse_literal, None),
+            TokenKind.TRUE: Rule(self.parse_literal, None),
+            TokenKind.NONE: Rule(self.parse_literal, None),
+            TokenKind.IDENT: Rule(self.parse_ident, None),
+            TokenKind.OPEN_PAREN: Rule(self.parse_grouping, None),
+            TokenKind.MINUS: Rule(self.parse_unary, self.parse_binary),
+            TokenKind.BANG: Rule(self.parse_unary, self.parse_binary),
+            TokenKind.PLUS: Rule(None, self.parse_binary),
         }
 
     def advance(self) -> Token:
@@ -161,7 +169,7 @@ class Parser:
             file=sys.stderr,
         )
 
-    def parse_expression(self, precedence: int) -> Expr:
+    def parse_expression(self, precedence: int = 0) -> Expr:
         """Parses an expression
 
         Args:
@@ -172,12 +180,22 @@ class Parser:
         """
 
         # Get the rule for the next token from the rule map dictionary
-        rule = self.rules_map[self.peek().kind]
-        lhs = rule()
 
-        while precedence <= get_precedence(self.peek().kind).infix:
+        rule = self.rules_map[self.peek().kind]
+
+        # If no prefix rule, return an error
+        if rule.prefix is None:
+            self.emit_error(
+                f"Invalid Syntax: Expected expression, found {self.peek()}", self.peek()
+            )
+
+        lhs = rule.prefix()
+
+        while precedence < get_precedence(self.peek().kind).infix:
             rule = self.rules_map[self.peek().kind]
-            lhs = rule(lhs)
+            lhs = rule.infix(lhs)
+
+        return lhs
 
     def parse_literal(self) -> Expr:
         """Parses a literal value"""

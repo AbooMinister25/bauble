@@ -1,19 +1,24 @@
 import sys
 
 from bauble.bauble_lexer import Lexer
+from bauble.bauble_parser import Parser
+from bauble.tokens import TokenKind
 
 HELP_MESSAGE = """Usage: bauble [options]
 """
 
 
 def run():
-    source = 'print("hi")'
-    lexer = Lexer(source)
+    source = "5 + 5"
+    # lexer = Lexer(source)
+    #
+    # while lexer.next.kind != TokenKind.EOF:
+    #     t = lexer.next_token()
+    #     print(t)
 
-    while not lexer.at_end():
-        print(lexer.next_token())
-        # print(lexer.next)
-        # print("--")
+    parser = Parser(source, "foo")
+    lhs = parser.parse_expression()
+    print(lhs)
 
 
 for cmd in sys.argv:
