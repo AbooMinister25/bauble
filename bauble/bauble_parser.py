@@ -1,6 +1,6 @@
 import sys
 from dataclasses import dataclass
-from typing import Optional, Callable
+from typing import Callable, Optional
 
 from bauble.bauble_ast import (
     Assignment,
@@ -109,9 +109,11 @@ class Parser:
             TokenKind.NONE: Rule(self.parse_literal, None),
             TokenKind.IDENT: Rule(self.parse_ident, None),
             TokenKind.OPEN_PAREN: Rule(self.parse_grouping, None),
-            TokenKind.MINUS: Rule(self.parse_unary, self.parse_binary),
-            TokenKind.BANG: Rule(self.parse_unary, self.parse_binary),
             TokenKind.PLUS: Rule(None, self.parse_binary),
+            TokenKind.MINUS: Rule(self.parse_unary, self.parse_binary),
+            TokenKind.STAR: Rule(None, self.parse_binary),
+            TokenKind.SLASH: Rule(None, self.parse_binary),
+            TokenKind.BANG: Rule(self.parse_unary, self.parse_binary),
         }
 
     def advance(self) -> Token:
@@ -156,7 +158,7 @@ class Parser:
             token: The token that the error is on.
         """
 
-        print(f"Syntax Error ", file=sys.stderr)
+        print("Syntax Error ", file=sys.stderr)
         print(f"= [{self.filename}:{token.line}:{token.column}]", file=sys.stderr)
         print(f"| {token if token.kind != TokenKind.ERROR else ''}", file=sys.stderr)
         print(
@@ -257,8 +259,8 @@ class Parser:
         """Parse a unary operation"""
 
         op = self.advance()
-        precedence = get_precedence(op.kind)
-        expr = self.parse_expression(precedence.prefix)
+        precedence = get_precedence(op.kind).prefix
+        expr = self.parse_expression(precedence)
 
         return UnaryOp(op.value, expr, op.position)
 
@@ -266,7 +268,7 @@ class Parser:
         """Parse a binary operation"""
 
         op = self.advance()
-        precedence = get_precedence(op.kind).infix + 1
+        precedence = get_precedence(op.kind).infix
 
         rhs = self.parse_expression(precedence)
 

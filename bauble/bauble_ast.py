@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Optional
 
-from bauble.tokens import Position
 from bauble.bauble_types import IOperator, LiteralKind, Operator
+from bauble.tokens import Position
 
 
 class Expr:
@@ -49,7 +49,7 @@ class BinOp(Expr):
         return f"BinOp[op: {self.op} lhs: {self.lhs} rhs: {self.rhs}]"
 
     def __str__(self):
-        return f"({self.lhs} {self.op} {self.lhs})"
+        return f"({self.lhs} {self.op} {self.rhs})"
 
 
 class UnaryOp(Expr):
@@ -77,7 +77,7 @@ class Identifier(Expr):
         self.name = name
 
     def __repr__(self):
-        return f"Identifier[{self.name}}}"
+        return f"Identifier[{self.name}]"
 
     def __str__(self):
         return self.name
