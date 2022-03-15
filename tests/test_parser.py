@@ -1,6 +1,5 @@
 import pytest
 
-from bauble.bauble_parser import Parser
 from bauble.bauble_ast import (
     Assignment,
     BinOp,
@@ -20,6 +19,7 @@ from bauble.bauble_ast import (
     UnaryOp,
     While,
 )
+from bauble.bauble_parser import Parser
 
 
 @pytest.mark.parametrize(
@@ -31,6 +31,7 @@ from bauble.bauble_ast import (
         ("false", "Literal[false]"),
         ("true", "Literal[true]"),
         ("foo", "Identifier[foo]"),
+        ("_", "Identifier[_]"),
         ("(10)", "Literal[10]"),
     ],
 )
@@ -54,6 +55,21 @@ def test_literals(data):
     ],
 )
 def test_binary(data):
+    parser = Parser(data[0], "main.bl")
+    node = parser.parse_expression()
+    assert str(node) == data[1]
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        ("-5", "(- 5)"),
+        ("!foo", "(! foo)"),
+        ("-5 + 3 * -2", "((- 5) + (3 * (- 2)))"),
+        ("!foo + 10 - (3 / -2)", "(((! foo) + 10) - (3 / (- 2)))"),
+    ],
+)
+def test_unary(data):
     parser = Parser(data[0], "main.bl")
     node = parser.parse_expression()
     assert str(node) == data[1]

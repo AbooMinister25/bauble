@@ -21,7 +21,8 @@ class Statement:
 
 
 class Literal(Expr):
-    """Represents a literal, so a string, floating point number, integer, or a boolean (True/False) or None"""
+    """Represents a literal, one of - string, floating point number,
+    integer, boolean (True/False) or None"""
 
     def __init__(self, value: LiteralKind, position: Position):
         super().__init__(position)
@@ -251,7 +252,8 @@ class FunctionDef(Statement):
 
 
 class ExpressionStmt(Statement):
-    """Represents an expression statement, or an expression in a place where a statement is expected"""
+    """Represents an expression statement, or an expression
+    in a place where a statement is expected"""
 
     def __init__(self, expr: Expr, position: Position):
         super().__init__(position)

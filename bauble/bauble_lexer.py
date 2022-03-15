@@ -128,7 +128,10 @@ class Lexer:
         if self.at_end():
             return self.create_token(
                 TokenKind.ERROR,
-                "Unterminated string literal, expected to find closing quote, instead found EOF (End of File)",
+                (
+                    "Unterminated string literal. "
+                    "expected to find closing quote, instead found EOF (End of File)"
+                ),
             )
 
         # Consume the closing quote
@@ -167,7 +170,8 @@ class Lexer:
         while not self.at_end() and self.peek().isidentifier():
             value += self.advance()
 
-        # If the final value is a keyword, return the corresponding token, otherwise create an Ident token
+        # If the final value is a keyword, return the corresponding token,
+        # otherwise create an Ident token
         return self.create_token(KEYWORDS.get(value, TokenKind.IDENT), value)
 
     def lex_token(self) -> Token:

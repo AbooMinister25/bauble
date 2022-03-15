@@ -113,7 +113,7 @@ class Parser:
             TokenKind.MINUS: Rule(self.parse_unary, self.parse_binary),
             TokenKind.STAR: Rule(None, self.parse_binary),
             TokenKind.SLASH: Rule(None, self.parse_binary),
-            TokenKind.BANG: Rule(self.parse_unary, self.parse_binary),
+            TokenKind.BANG: Rule(self.parse_unary, None),
         }
 
     def advance(self) -> Token:

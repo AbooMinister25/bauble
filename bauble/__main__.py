@@ -9,12 +9,7 @@ HELP_MESSAGE = """Usage: bauble [options]
 
 
 def run():
-    source = "1 + 2 * 3 * 4 + 5"
-    # lexer = Lexer(source)
-    #
-    # while lexer.next.kind != TokenKind.EOF:
-    #     t = lexer.next_token()
-    #     print(t)
+    source = "-5"
 
     parser = Parser(source, "foo")
     lhs = parser.parse_expression()
