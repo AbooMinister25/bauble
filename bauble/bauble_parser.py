@@ -1,6 +1,6 @@
 import sys
 from dataclasses import dataclass
-from typing import Callable, Optional
+from typing import Callable, Optional, Union
 
 from bauble.bauble_ast import (
     Assignment,
@@ -37,8 +37,8 @@ class Precedence:
 class Rule:
     """Represents a parse rule with a prefix and infix handler"""
 
-    prefix: Optional[Optional[Callable[[], Expr]]]
-    infix: Optional[Optional[Callable[[Expr], Expr]]]
+    prefix: Optional[Optional[Callable[[], Union[Expr, Statement]]]]
+    infix: Optional[Optional[Callable[[Expr], Union[Expr, Statement]]]]
 
 
 PRECEDENCE_MAP = {
@@ -114,6 +114,14 @@ class Parser:
             TokenKind.STAR: Rule(None, self.parse_binary),
             TokenKind.SLASH: Rule(None, self.parse_binary),
             TokenKind.BANG: Rule(self.parse_unary, None),
+            TokenKind.EQUAL_EQUAL: Rule(self.parse_binary, None),
+            TokenKind.BANG_EQUAL: Rule(self.parse_binary, None),
+            TokenKind.GREATER: Rule(self.parse_binary, None),
+            TokenKind.GREATER_EQUAL: Rule(self.parse_binary, None),
+            TokenKind.LESS: Rule(self.parse_binary, None),
+            TokenKind.LESS_EQUAL: Rule(self.parse_binary, None),
+            TokenKind.AND: Rule(self.parse_binary, None),
+            TokenKind.OR: Rule(self.parse_binary, None),
         }
 
     def advance(self) -> Token:
@@ -171,7 +179,7 @@ class Parser:
             file=sys.stderr,
         )
 
-    def parse_expression(self, precedence: int = 0) -> Expr:
+    def parse_expression(self, precedence: int = 1) -> Expr:
         """Parses an expression
 
         Args:
@@ -219,7 +227,7 @@ class Parser:
         # If the next token is an equal sign, parse as an assignment
         if self.peek().kind == TokenKind.EQUAL:
             self.advance()
-            value = self.parse_expression(1)
+            value = self.parse_expression()
 
             return Assignment(token.value, value, token.position)
         # If next token is an opening parenthesis, parse as a function call
@@ -237,7 +245,7 @@ class Parser:
 
         # While the next token isn't a closing parenthesis, parse the next argument
         while self.peek().kind != TokenKind.CLOSE_PAREN:
-            arg = self.parse_expression(1)
+            arg = self.parse_expression()
             args.append(arg)
 
             if self.peek().kind == TokenKind.COMMA:
@@ -250,7 +258,7 @@ class Parser:
         """Parse a grouping (expression in between parenthesis)"""
 
         self.advance()
-        expr = self.parse_expression(1)
+        expr = self.parse_expression()
         self.consume(TokenKind.CLOSE_PAREN, "Expected to find closing parenthesis `)`")
 
         return expr
@@ -273,3 +281,20 @@ class Parser:
         rhs = self.parse_expression(precedence)
 
         return BinOp(op.value, lhs, rhs, lhs.position)
+
+    def parse_declaration(self) -> Statement:
+        """Parse a variable declaration"""
+
+        token = self.advance()
+        if self.peek().kind != TokenKind.IDENT:
+            self.emit_error("Expected to find an identifier after `let`", token)
+
+        ident = self.advance()
+        self.consume(TokenKind.EQUAL, "Expected to find `=` in assignment")
+        value = self.parse_expression()
+
+        self.consume(
+            TokenKind.SEMICOLON, "Semicolon expected after variable declaration"
+        )  # Consume an ending semicolon
+
+        return Let(ident.value, value, token.position)

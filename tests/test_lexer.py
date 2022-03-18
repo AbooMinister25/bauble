@@ -113,7 +113,7 @@ def test_misc():
 
     error = lexer.next_token()
     assert error.kind == TokenKind.ERROR and error.value == (
-        "Unterminated string literal, expected to find closing quote, instead found EOF (End of File)"
+        "Unterminated string literal. Expected to find closing quote, instead found EOF (End of File)"
     )
 
     assert lexer.next_token().kind == TokenKind.EOF

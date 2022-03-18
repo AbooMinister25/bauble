@@ -130,7 +130,7 @@ class Lexer:
                 TokenKind.ERROR,
                 (
                     "Unterminated string literal. "
-                    "expected to find closing quote, instead found EOF (End of File)"
+                    "Expected to find closing quote, instead found EOF (End of File)"
                 ),
             )
 

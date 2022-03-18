@@ -1,24 +1,4 @@
 import pytest
-
-from bauble.bauble_ast import (
-    Assignment,
-    BinOp,
-    Block,
-    Expr,
-    ExpressionStmt,
-    For,
-    FunctionCall,
-    FunctionDef,
-    Grouping,
-    Identifier,
-    If,
-    Let,
-    Literal,
-    Return,
-    Statement,
-    UnaryOp,
-    While,
-)
 from bauble.bauble_parser import Parser
 
 
@@ -70,6 +50,21 @@ def test_binary(data):
     ],
 )
 def test_unary(data):
+    parser = Parser(data[0], "main.bl")
+    node = parser.parse_expression()
+    assert str(node) == data[1]
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        ("foo()", "foo()"),
+        ("foo(1, 2, 3)", "foo(1, 2, 3)"),
+        ("foo(a, b, c)", "foo(a, b, c)"),
+        ("foo(5 + 5, 5 * 5, 5 - 5)", "foo((5 + 5), (5 * 5), (5 - 5))"),
+    ],
+)
+def test_function_call(data):
     parser = Parser(data[0], "main.bl")
     node = parser.parse_expression()
     assert str(node) == data[1]

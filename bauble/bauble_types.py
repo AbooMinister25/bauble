@@ -9,4 +9,4 @@ Operator = Literal[
 ]
 
 # Alias for different infix operators
-IOperator = Literal["+", "-", "!"]
+IOperator = Literal["-", "!"]
